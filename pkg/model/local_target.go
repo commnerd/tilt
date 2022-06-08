@@ -14,6 +14,7 @@ type LocalTarget struct {
 	Name     TargetName
 	ServeCmd Cmd      // e.g. `python main.py`
 	Links    []Link   // zero+ links assoc'd with this resource (to be displayed in UIs)
+	Inputs   []Input  // zero+ inputs assoc'd with this resource (to be displayed in UIs)
 	Deps     []string // a list of ABSOLUTE file paths that are dependencies of this target
 
 	FileWatchIgnores []v1alpha1.IgnoreDef
@@ -75,6 +76,11 @@ func (lt LocalTarget) WithAllowParallel(val bool) LocalTarget {
 
 func (lt LocalTarget) WithLinks(links []Link) LocalTarget {
 	lt.Links = links
+	return lt
+}
+
+func (lt LocalTarget) WithInputs(inputs []Input) LocalTarget {
+	lt.Inputs = inputs
 	return lt
 }
 

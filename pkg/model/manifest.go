@@ -587,6 +587,28 @@ func LinksToURLStrings(lns []Link) []string {
 	return res
 }
 
+// An associated with resource; may represent a string replacement or environment
+// variable which is handed to a resource via the UI
+type Input struct {
+	Key   string
+	Value string
+}
+
+func NewInput(value string, key string) (Input, error) {
+	return Input{
+		Key:   key,
+		Value: value,
+	}, nil
+}
+
+func MustNewInput(key string, value string) Input {
+	li, err := NewInput(key, value)
+	if err != nil {
+		panic(err)
+	}
+	return li
+}
+
 var imageTargetAllowUnexported = cmp.AllowUnexported(ImageTarget{})
 var dcTargetAllowUnexported = cmp.AllowUnexported(DockerComposeTarget{})
 var labelRequirementAllowUnexported = cmp.AllowUnexported(labels.Requirement{})
@@ -607,6 +629,9 @@ var ignoreRegistryFields = cmpopts.IgnoreFields(v1alpha1.RegistryHosting{}, "Hos
 // This is done both because they don't actually invalidate the build AND because url.URL is not directly comparable
 // in all cases (e.g. a URL with a user@ value will result in url.URL->User being populated which has unexported fields).
 var ignoreLinks = cmpopts.IgnoreTypes(Link{})
+
+// ignoreInputs ignores user-defined inputs for the purpose of build invalidation
+var ignoreInputs = cmpopts.IgnoreTypes(Input{})
 
 var dockerRefEqual = cmp.Comparer(func(a, b reference.Named) bool {
 	aNil := a == nil
@@ -649,6 +674,9 @@ func equalForBuildInvalidation(x, y interface{}) bool {
 
 		// user-added links don't invalidate a build
 		ignoreLinks,
+
+		// user-added inputs dn't invalidate a build
+		ignoreInputs,
 
 		// We don't want a change to the DockerCompose Project to invalidate
 		// all individual services. We track the service-specific YAML with

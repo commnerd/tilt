@@ -159,6 +159,16 @@ var equalitytests = []struct {
 		})),
 		false,
 	},
+	{
+		"Inputs unequal and doesn't invalidate",
+		Manifest{}.WithDeployTarget(NewLocalTarget("foo", Cmd{}, Cmd{}, nil).WithInputs([]Input{
+			{Key: "foo", Value: "bar"},
+		})),
+		Manifest{}.WithDeployTarget(NewLocalTarget("foo", Cmd{}, Cmd{}, nil).WithInputs([]Input{
+			{Key: "foo", Value: "bar"},
+		})),
+		false,
+	},
 }
 
 func TestManifestEquality(t *testing.T) {

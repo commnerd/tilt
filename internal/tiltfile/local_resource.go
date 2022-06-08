@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"go.starlark.net/starlark"
 
+	"github.com/tilt-dev/tilt/internal/tiltfile/inputs"
 	"github.com/tilt-dev/tilt/internal/tiltfile/links"
 	"github.com/tilt-dev/tilt/internal/tiltfile/probe"
 	"github.com/tilt-dev/tilt/internal/tiltfile/starkit"
@@ -32,6 +33,7 @@ type localResource struct {
 	ignores       []string
 	allowParallel bool
 	links         []model.Link
+	inputs        []model.Input
 	labels        map[string]string
 
 	readinessProbe *v1alpha1.Probe
@@ -51,6 +53,7 @@ func (s *tiltfileState) localResource(thread *starlark.Thread, fn *starlark.Buil
 	var ignoresVal starlark.Value
 	var allowParallel bool
 	var links links.LinkList
+	var inputs inputs.InputList
 	var labels value.LabelSet
 	autoInit := true
 	if fn.Name() == testN {
@@ -72,6 +75,7 @@ func (s *tiltfileState) localResource(thread *starlark.Thread, fn *starlark.Buil
 		"serve_cmd_bat?", &serveCmdBatVal,
 		"allow_parallel?", &allowParallel,
 		"links?", &links,
+		"inputs?", &inputs,
 		"labels?", &labels,
 		"env?", &updateEnv,
 		"serve_env?", &serveEnv,
@@ -123,6 +127,7 @@ func (s *tiltfileState) localResource(thread *starlark.Thread, fn *starlark.Buil
 		ignores:        ignores,
 		allowParallel:  allowParallel,
 		links:          links.Links,
+		inputs:         inputs.Inputs,
 		labels:         labels.Values,
 		readinessProbe: probeSpec,
 	}
